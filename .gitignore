@@ -1,3 +1,7 @@
+# User added ignored filetypes
+*.swp
+*.DS_Store
+
 # History files
 .Rhistory
 .Rapp.history

@@ -72,5 +72,8 @@ b = solve(A) %*% fs # these are the coefficients of the basis functions
 
 ## Plot a couple basis functions
 # plot(pltxs, apply(matrix(pltxs), 1, phi1))
-plt_phin = ggplot(data.frame(x=pltxs, y=apply(matrix(pltxs), 1, phin))) +
-    geom_line(aes(x=x, y=y))
+plt_phi_edges = ggplot() +
+    geom_line(data=data.frame(x=pltxs, y=apply(matrix(pltxs), 1, phin)),
+              aes(x=x, y=y), color="steelblue") +
+    geom_line(data=data.frame(x=pltxs, y=apply(matrix(pltxs), 1, phi1)),
+              aes(x=x, y=y), color="darkviolet")

@@ -1,3 +1,6 @@
+rm(list=ls())
+set.seed(33)
+
 ### POISSON FORMULATION
 ## - u_xx = f
 
@@ -10,9 +13,12 @@
 d = c(0,1) # target function domain
 nx = 25 # number of collocating nodes
 hs = rep(abs(d[1]-d[2])/(nx-1), nx-1) # distance between nodes, equally spaced
+K = 100 # resolution of plotting xs
 
 ## Collocate nodes
 xs = c(d[1], Reduce(sum, hs, accumulate=T))
+xs[nx] = d[2]
+pltxs = seq(d[1], d[2], length.out=K)
 
 ## Define negative second derivative of the displacement function
 f = function(x){
@@ -34,3 +40,37 @@ sub_diag_ix = diag_ix[1:length(diag_ix)-1] + 1
 A[sub_diag_ix] = -1 # the subdiagonal entries must be -1
 sup_diag_ix = diag_ix[2:length(diag_ix)] - 1
 A[sup_diag_ix] = -1 # above teh diagonal must be -1 as well
+h = hs[1]
+A = (1/h)*A # this step relies on the fact that the nodes are equally spaced
+
+## Generate basis functions
+# Here, these are the simple triangles described above
+phi1 = function(x){
+    if(x < xs[1]){
+        return(0)
+    }else if(x >= xs[2]){
+        return(0)
+    }else{
+        return(-(x-xs[2])/h)
+    }
+}
+
+phin = function(x){
+    if(x <= xs[nx-1]){
+        return(0)
+    }else if(x > xs[nx]){
+        return(0)
+    }else{
+        return((x-xs[nx-1])/h)
+    }
+}
+phis = 0
+
+## Solve b*A = g
+fs = f(xs)
+b = solve(A) %*% fs # these are the coefficients of the basis functions
+
+## Plot a couple basis functions
+# plot(pltxs, apply(matrix(pltxs), 1, phi1))
+plt_phin = ggplot(data.frame(x=pltxs, y=apply(matrix(pltxs), 1, phin))) +
+    geom_line(aes(x=x, y=y))

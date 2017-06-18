@@ -64,11 +64,41 @@ phin = function(x){
         return((x-xs[nx-1])/h)
     }
 }
-phis = 0
+
+phi = function(x, i){
+    if(x < xs[i-1]){
+        return(0)
+    }else if(x > xs[i+1]){
+        return(0)
+    }else if(x < xs[i]){
+        return((x-xs[i-1])/h)
+    }else{
+        return(1 - (x-xs[i])/h)
+    }
+}
+phiv = Vectorize(phi, "x")
 
 ## Solve b*A = g
 fs = f(xs)
 b = solve(A) %*% fs # these are the coefficients of the basis functions
+
+## Regress the FEM solution
+ys = rep(0, K)
+for(a in 1:K){
+    # for each plotting x value
+    for(i in 1:nx){
+        # for each basis function
+        # calculate the value of the function at that point and add its weighted
+        # result to the ys vector
+        if(i == 1){
+            ys[a] = ys[a] + b[1]*phi1(pltxs[a])
+        }else if(i == nx){
+            ys[a] = ys[a] + b[nx]*phin(pltxs[a])
+        }else{
+            ys[a] = ys[a] + b[i]*phi(pltxs[a], i)
+        }
+    }
+}
 
 ## Plot a couple basis functions
 # plot(pltxs, apply(matrix(pltxs), 1, phi1))
@@ -77,3 +107,4 @@ plt_phi_edges = ggplot() +
               aes(x=x, y=y), color="steelblue") +
     geom_line(data=data.frame(x=pltxs, y=apply(matrix(pltxs), 1, phi1)),
               aes(x=x, y=y), color="darkviolet")
+
